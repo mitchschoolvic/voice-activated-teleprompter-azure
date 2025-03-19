@@ -1,6 +1,6 @@
-import { useEffect, useRef, useLayoutEffect } from "react"
-import { escape } from "html-escaper"
-import { useAppDispatch, useAppSelector } from "../../app/hooks"
+import { useEffect, useRef, useLayoutEffect } from "react";
+import { escape } from "html-escaper";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   setContent,
   setFinalTranscriptIndex,
@@ -10,9 +10,8 @@ import {
   selectTextElements,
   selectFinalTranscriptIndex,
   selectInterimTranscriptIndex,
-} from "./contentSlice"
-import { selectSavedPosition, setSavedPosition } from "../scroll/scrollSlice"
-
+} from "./contentSlice";
+import { selectSavedPosition, setSavedPosition } from "../scroll/scrollSlice";
 import {
   selectStatus,
   selectHorizontallyFlipped,
@@ -21,52 +20,75 @@ import {
   selectMargin,
   selectOpacity,
   selectReadLinePosition,
-} from "../navbar/navbarSlice"
+} from "../navbar/navbarSlice";
 
 interface Padding {
   top: number;
   bottom: number;
 }
 
+// Easing function for smooth acceleration/deceleration
+const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+
+// Custom smooth scroll function using requestAnimationFrame
+const smoothScroll = (element: HTMLElement, to: number, duration: number) => {
+  const start = element.scrollTop;
+  const change = to - start;
+  const startTime = performance.now();
+
+  const animateScroll = (currentTime: number) => {
+    const timeElapsed = currentTime - startTime;
+    const progress = Math.min(timeElapsed / duration, 1); // Clamp between 0 and 1
+    const easedProgress = easeInOutQuad(progress);
+    element.scrollTop = start + change * easedProgress;
+
+    if (timeElapsed < duration) {
+      requestAnimationFrame(animateScroll);
+    }
+  };
+
+  requestAnimationFrame(animateScroll);
+};
+
 export const Content = () => {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
-  const status = useAppSelector(selectStatus)
-  const fontSize = useAppSelector(selectFontSize)
-  const margin = useAppSelector(selectMargin)
-  const opacity = useAppSelector(selectOpacity)
-  const readLinePosition = useAppSelector(selectReadLinePosition)
-  const horizontallyFlipped = useAppSelector(selectHorizontallyFlipped)
-  const verticallyFlipped = useAppSelector(selectVerticallyFlipped)
-  const rawText = useAppSelector(selectRawText)
-  const textElements = useAppSelector(selectTextElements)
-  const finalTranscriptIndex = useAppSelector(selectFinalTranscriptIndex)
-  const interimTranscriptIndex = useAppSelector(selectInterimTranscriptIndex)
-  const savedPosition = useAppSelector(selectSavedPosition)
+  const status = useAppSelector(selectStatus);
+  const fontSize = useAppSelector(selectFontSize);
+  const margin = useAppSelector(selectMargin);
+  const opacity = useAppSelector(selectOpacity);
+  const readLinePosition = useAppSelector(selectReadLinePosition);
+  const horizontallyFlipped = useAppSelector(selectHorizontallyFlipped);
+  const verticallyFlipped = useAppSelector(selectVerticallyFlipped);
+  const rawText = useAppSelector(selectRawText);
+  const textElements = useAppSelector(selectTextElements);
+  const finalTranscriptIndex = useAppSelector(selectFinalTranscriptIndex);
+  const interimTranscriptIndex = useAppSelector(selectInterimTranscriptIndex);
+  const savedPosition = useAppSelector(selectSavedPosition);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const lastRef = useRef<HTMLDivElement>(null)
-  const lastInterimIndex = useRef<number>(-1)
-  const prevFontSizeRef = useRef(fontSize)
-  const prevReadLineRef = useRef(readLinePosition)
-  const isInitializedRef = useRef(false)
-  const prevStatusRef = useRef(status)
-  const wasAtTopRef = useRef(true)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lastRef = useRef<HTMLDivElement>(null);
+  const lastInterimIndex = useRef<number>(-1);
+  const prevFontSizeRef = useRef(fontSize);
+  const prevReadLineRef = useRef(readLinePosition);
+  const isInitializedRef = useRef(false);
+  const prevStatusRef = useRef(status);
+  const wasAtTopRef = useRef(true);
 
   const calculatePadding = (containerHeight: number): Padding => {
     if (status === "editorMode") {
       const topPadding = containerHeight * 0.1;
       return {
         top: topPadding,
-        bottom: containerHeight * 0.1
+        bottom: containerHeight * 0.1,
       };
     }
 
     const readLinePixels = containerHeight * (readLinePosition / 100);
     return {
       top: containerHeight * 0.1,
-      bottom: readLinePixels
+      bottom: readLinePixels,
     };
   };
 
@@ -84,14 +106,17 @@ export const Content = () => {
     return {
       ...baseStyles,
       opacity: opacity / 100,
-      transform: `scale(${horizontallyFlipped ? "-1" : "1"}, ${verticallyFlipped ? "-1" : "1"})`,
+      transform: `scale(${horizontallyFlipped ? "-1" : "1"}, ${
+        verticallyFlipped ? "-1" : "1"
+      })`,
     };
   };
 
   useEffect(() => {
-    const currentElement = status === "editing" || status === "editorMode"
-      ? textareaRef.current
-      : containerRef.current;
+    const currentElement =
+      status === "editing" || status === "editorMode"
+        ? textareaRef.current
+        : containerRef.current;
 
     if (currentElement) {
       const containerHeight = currentElement.clientHeight;
@@ -104,9 +129,10 @@ export const Content = () => {
 
   useLayoutEffect(() => {
     if (!isInitializedRef.current) {
-      const currentElement = status === "editing" || status === "editorMode"
-        ? textareaRef.current
-        : containerRef.current;
+      const currentElement =
+        status === "editing" || status === "editorMode"
+          ? textareaRef.current
+          : containerRef.current;
 
       if (currentElement) {
         wasAtTopRef.current = currentElement.scrollTop === 0;
@@ -123,27 +149,30 @@ export const Content = () => {
       wasAtTopRef.current = scrollTop === 0;
     };
 
-    const currentElement = status === "editing" || status === "editorMode"
-      ? textareaRef.current
-      : containerRef.current;
+    const currentElement =
+      status === "editing" || status === "editorMode"
+        ? textareaRef.current
+        : containerRef.current;
 
-    currentElement?.addEventListener('scroll', handleScroll);
+    currentElement?.addEventListener("scroll", handleScroll);
 
     return () => {
-      currentElement?.removeEventListener('scroll', handleScroll);
+      currentElement?.removeEventListener("scroll", handleScroll);
     };
   }, [status, dispatch]);
 
   useEffect(() => {
     if (status !== prevStatusRef.current) {
-      const currentElement = status === "editing" || status === "editorMode"
-        ? textareaRef.current
-        : containerRef.current;
+      const currentElement =
+        status === "editing" || status === "editorMode"
+          ? textareaRef.current
+          : containerRef.current;
 
       if (currentElement) {
         const containerHeight = currentElement.clientHeight;
         const { top, bottom } = calculatePadding(containerHeight);
-        const isLeavingEditorMode = prevStatusRef.current === "editorMode" && status !== "editorMode";
+        const isLeavingEditorMode =
+          prevStatusRef.current === "editorMode" && status !== "editorMode";
 
         currentElement.style.paddingTop = `${top}px`;
         currentElement.style.paddingBottom = `${bottom}px`;
@@ -165,9 +194,10 @@ export const Content = () => {
 
   useEffect(() => {
     if (prevReadLineRef.current !== readLinePosition) {
-      const currentElement = status === "editing" || status === "editorMode"
-        ? textareaRef.current
-        : containerRef.current;
+      const currentElement =
+        status === "editing" || status === "editorMode"
+          ? textareaRef.current
+          : containerRef.current;
 
       if (currentElement) {
         const containerHeight = currentElement.clientHeight;
@@ -177,13 +207,16 @@ export const Content = () => {
         currentElement.style.paddingBottom = `${bottom}px`;
 
         const currentScrollTop = currentElement.scrollTop;
-        const currentReadLinePosition = containerHeight * (prevReadLineRef.current / 100);
-        const newReadLinePosition = containerHeight * (readLinePosition / 100);
-        const scrollAdjustment = newReadLinePosition - currentReadLinePosition;
+        const currentReadLinePosition =
+          containerHeight * (prevReadLineRef.current / 100);
+        const newReadLinePosition =
+          containerHeight * (readLinePosition / 100);
+        const scrollAdjustment =
+          newReadLinePosition - currentReadLinePosition;
 
         currentElement.scrollTo({
           top: currentScrollTop + scrollAdjustment,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
 
         prevReadLineRef.current = readLinePosition;
@@ -202,10 +235,8 @@ export const Content = () => {
         const { bottom } = calculatePadding(containerHeight);
         container.style.paddingBottom = `${bottom}px`;
 
-        container.scrollTo({
-          top: targetPosition,
-          behavior: "smooth",
-        });
+        // Use custom smoothScroll instead of native scrollTo
+        smoothScroll(container, targetPosition, 300); // 300ms duration
 
         lastInterimIndex.current = interimTranscriptIndex;
       }
@@ -220,16 +251,12 @@ export const Content = () => {
           className={`content ${status === "editorMode" ? "editor-mode" : ""}`}
           style={getStyles()}
           value={rawText}
-          onChange={e => dispatch(setContent(e.target.value))}
+          onChange={(e) => dispatch(setContent(e.target.value))}
           placeholder={PLACEHOLDER_TEXT}
           spellCheck={false}
         />
       ) : (
-        <div
-          className="content"
-          ref={containerRef}
-          style={getStyles()}
-        >
+        <div className="content" ref={containerRef} style={getStyles()}>
           {rawText ? (
             textElements.map((textElement, index, array) => {
               const itemProps =
@@ -262,9 +289,7 @@ export const Content = () => {
               );
             })
           ) : (
-            <div className="placeholder-text">
-              {PLACEHOLDER_TEXT}
-            </div>
+            <div className="placeholder-text">{PLACEHOLDER_TEXT}</div>
           )}
         </div>
       )}

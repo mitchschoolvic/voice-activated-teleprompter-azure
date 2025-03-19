@@ -1,3 +1,4 @@
+// main.tsx
 import 'vite/modulepreload-polyfill'
 import React from "react"
 import { createRoot } from "react-dom/client"
