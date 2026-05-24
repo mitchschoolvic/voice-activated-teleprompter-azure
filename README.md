@@ -1,13 +1,10 @@
-# Voice-Activated Teleprompter
+# A Magenta-fied Voice-Activated Teleprompter
 
-I do not charge anything to create and maintain these open-source projects. But if you would like to say "thanks" for this project, feel free to send any amount through Paypal using the button below. I appreciate your support!
+This voice activated teleprompter is designed to meet these requirements:
 
-[![](donate.png)](https://www.paypal.com/donate/?hosted_button_id=49UXY8F6VVYFA)
+Voice detection must work in the Edge Browswer - This app uses Azure Speech API as the backend
+Must detect when a USB audio device is attached and switch to the USB microphone automatically
+Must be intuitive and simple for staff to use
+Pasted scripts are stored locally on device and store between sessions and refreshes
 
-This web-based single-page application (SPA) is a voice-activated teleprompter, i.e., it automatically scrolls the text you are reading as you are reading it. It is built using [Vite](https://vitejs.dev/), [React](https://react.dev/), [Redux](https://redux.js.org/), and [Bulma](https://bulma.io/). I routinely use it with my [Elgato Prompter](https://www.elgato.com/us/en/p/prompter) to create [my own YouTube videos](https://www.youtube.com/@darkskygeek). Such software already exists, but it is either rather expensive, or not robust enough. For example, the free online software created by Teleprompter Mirror [[link](https://telepromptermirror.com/telepromptersoftware.htm)] easily gets confused if you go off script or mispronounce too many words, and as a result, it will stop auto-scrolling. This is why I built this app.
-
-**Note:** It is currently hard-coded to recognize American English speech (`en-US` locale) and was tested only in the Chrome web browser. It will likely not work in other web browsers!
-
-You can try it live [here](https://jlecomte.github.io/voice-activated-teleprompter/dist/).
-
-**Instructions:** Once you've opened the live demo, click on the `Edit` button in the toolbar. Paste your script into the content area and click on the `Edit` button again to validate. Then, click on the `Play` button in the toolbar and start reading your script. If you need to take a break, you can click on the `Stop` button at any time, and then later resume the transcription by clicking on the `Play` button again. You can also click on individual words in your script to reset the transcription to a specific index in case you need to re-read a section of your script.
+Forked and modified from this teleprompter web app that uses the Google Speech API (not compatible in Edge) [Voice Ativated Teleprompter](https://jlecomte.github.io/voice-activated-teleprompter/dist/).
