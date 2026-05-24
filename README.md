@@ -1,7 +1,10 @@
 # A Magenta-fied Voice-Activated Teleprompter
 
 Available here:
+
 https://pangea.ws/teleprompt
+
+OR
 
 https://kind-sky-04ada0400.5.azurestaticapps.net/
 
